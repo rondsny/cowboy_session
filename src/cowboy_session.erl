@@ -88,8 +88,11 @@ get_session(Req) ->
 	Cookie_name = ?CONFIG(cookie_name),
 	SID = case cowboy_req:meta(Cookie_name, Req) of
 		undefined ->
-			Map = cowboy_req:match_cookies([{Cookie_name, undefined}],Req),
-			maps:get(Cookie_name, Map, undefined);
+			Cookies = cowboy_req:parse_cookies(Req),
+			case lists:keyfind(Cookie_name, 1, Cookies) of
+				false -> undefined;
+				{_, Value} -> Value
+			end;
 		Result ->
 			Result
 	end,
